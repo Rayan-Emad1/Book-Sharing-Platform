@@ -52,21 +52,20 @@ const userInfo = async (req, res) => {
 
     res.json(userInfo);
   } catch (error) {
-    console.error(error);
-    res.json(userInfo);
+    res.status(500).json({ error: error.message });
   }
 }
 
 const searchUser = async (req, res) => {
   try {
     const { username } = req.body;
-
-    const foundUsers = await User.find({ username: { $regex: username, $options: 'i' } })
-      .populate('following', '_id')
-  
     const currentUser = await User.findById(req.user._id).populate('following', '_id');
 
+    const foundUsers = await User.find({username: { $regex: username, $options: 'i' }, _id: { $ne: currentUser._id }});
+  
+
     const searchResults = foundUsers.map((user) => ({
+      id: user._id,
       username: user.username,
       isFollowed: currentUser.following.includes(user._id), 
       ownBooksCount: user.ownBooks.length,
@@ -74,8 +73,28 @@ const searchUser = async (req, res) => {
 
     res.json({ searchResults });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const togglefollowUser = async (req, res) => {
+  try {
+    const { userId } = req.body;
+    const currentUser = await User.findById(req.user._id);
+    const targetUser = await User.findById(userId);
+
+    if (currentUser.following.includes(targetUser._id)) {
+      currentUser.following.pull(targetUser._id);
+      await currentUser.save();
+      res.json({ message: 'User Unfollowed' });
+
+    } else {
+      currentUser.following.push(targetUser._id);
+      await currentUser.save();
+      res.json({ message: 'User Followed' });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 };
 
@@ -85,5 +104,4 @@ const searchUser = async (req, res) => {
 
 
 
-
-module.exports = {userInfo, postBook, searchUser}
+module.exports = {userInfo, postBook, searchUser,togglefollowUser}
