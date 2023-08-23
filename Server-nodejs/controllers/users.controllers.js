@@ -119,6 +119,28 @@ const getBooks = async (req, res) => {
   }
 };
 
+const toggleLikeBook = async (req, res) => {
+  try {
+    const { owner_id, bookId } = req.body;
+    const currentUser = await User.findById(req.user._id);
+    const owner = await User.findById(owner_id);
+    const bookToLike = owner.ownBooks.find((book) => book._id.toString() === bookId);
 
 
-module.exports = {userInfo, postBook, searchUser,togglefollowUser, getBooks}
+    const isLiked = bookToLike.likes.includes(currentUser._id);
+
+    if (isLiked) {
+      bookToLike.likes.pull(currentUser._id);
+    } else {
+      bookToLike.likes.push(currentUser._id);
+    }
+
+    await owner.save();
+
+    res.json({ message: `Book ${isLiked ? 'unliked' : 'liked'} successfully` , owner });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+module.exports = {userInfo, postBook, searchUser,togglefollowUser, getBooks,toggleLikeBook}
