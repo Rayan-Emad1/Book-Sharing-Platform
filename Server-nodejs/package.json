@@ -1,5 +1,5 @@
 {
-  "name": "airbnb-server-nodejs",
+  "name": "server-nodejs",
   "version": "1.0.0",
   "main": "index.js",
   "author": "",
@@ -16,5 +16,8 @@
     "start": "node index.js",
     "dev": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
   }
 }

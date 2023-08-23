@@ -1,41 +1,23 @@
 const mongoose = require("mongoose");
 
-const bookingsSchema = new mongoose.Schema({
-    user: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User"
-    },
-    from: Date,
-    to: Date,
-    isConfirmed: Boolean,
-}, { timestamps: true });
+const bookSchema = new mongoose.Schema({
+    title: { type: String, required: true },
+    author: { type: String, required: true },
+    pictureUrl: String,
+    review: String,
+    likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+  });
 
-const staysShcema = new mongoose.Schema({
-    name: String,
-    price: String,
-    location: String,
-    pic_url: String,
-    bookings: [bookingsSchema]
-}, {timestamps: true})
 
-const usersSchema = new mongoose.Schema({
-    firstName: String,
-    lastName: String,
-    email: {
-        type: String,
-        unique: true,
-    },
-    password: String,
-    country: String,
-    user_type: {
-        type: String,
-        enum: ["USER", "ADMIN"],
-        default: "USER"
-    },
-    stays: [staysShcema]
-}, {
-    timestamps: true
-})
+  const userSchema = new mongoose.Schema({
+    username: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+    favoriteBooks: [bookSchema],
+    followers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    following: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+  });
 
-const model = mongoose.model("User", usersSchema);
-module.exports = model;
+const User = mongoose.model("User", userSchema);
+
+module.exports = User;

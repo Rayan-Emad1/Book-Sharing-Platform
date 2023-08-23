@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const mongooseConnect = ()=>{
-    mongoose.connect("mongodb://127.0.0.1:27017/airbnb")
+    mongoose.connect("mongodb://127.0.0.1:27017/booksharing")
     .then(()=>{
         console.log("Connected to MongoDB")
     })
