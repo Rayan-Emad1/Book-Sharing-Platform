@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 
 const bookSchema = new mongoose.Schema({
+    user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     title: { type: String, required: true },
     author: { type: String, required: true },
     genre: { type: String, required: true },
@@ -15,7 +16,7 @@ const bookSchema = new mongoose.Schema({
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     favoriteBooks: [bookSchema],
-    followers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    ownBooks: [bookSchema],
     following: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
   });
 
