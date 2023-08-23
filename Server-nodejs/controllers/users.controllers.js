@@ -13,6 +13,7 @@ const postFavoriteBook = async (req, res) => {
       user.favoriteBooks.push({
         title,
         author,
+        genre,
         pictureUrl,
         review,
       });
