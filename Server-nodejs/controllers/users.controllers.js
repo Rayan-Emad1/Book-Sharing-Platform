@@ -56,4 +56,34 @@ const userInfo = async (req, res) => {
     res.json(userInfo);
   }
 }
-module.exports = {userInfo, postBook}
+
+const searchUser = async (req, res) => {
+  try {
+    const { username } = req.body;
+
+    const foundUsers = await User.find({ username: { $regex: username, $options: 'i' } })
+      .populate('following', '_id')
+  
+    const currentUser = await User.findById(req.user._id).populate('following', '_id');
+
+    const searchResults = foundUsers.map((user) => ({
+      username: user.username,
+      isFollowed: currentUser.following.includes(user._id), 
+      ownBooksCount: user.ownBooks.length,
+    }));
+
+    res.json({ searchResults });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+
+
+
+
+
+
+
+module.exports = {userInfo, postBook, searchUser}
