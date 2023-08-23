@@ -107,7 +107,7 @@ const getBooks = async (req, res) => {
     const booksFromFollowing = [];
 
     for (const user of following_list) {
-      const userWithBooks = await User.findById(user._id).populate('ownBooks');
+      const userWithBooks = await user.populate('ownBooks');
       booksFromFollowing.push(...userWithBooks.ownBooks);
     }
 
