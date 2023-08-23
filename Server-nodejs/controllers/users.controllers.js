@@ -34,7 +34,7 @@ const userInfo = async (req, res) => {
     const userData = await User.findById(userId)
       .populate('favoriteBooks')
       .populate('following');
-    console.log(userId);
+
     const ownLikesCount = userData.ownBooks.reduce((total, book) => total + book.likes.length, 0);
     const ownBooksCount = userData.ownBooks.length;
     const followingCount = userData.following.length;
@@ -79,9 +79,8 @@ const searchUser = async (req, res) => {
 
 const togglefollowUser = async (req, res) => {
   try {
-    const { userId } = req.body;
     const currentUser = await User.findById(req.user._id);
-    const targetUser = await User.findById(userId);
+    const targetUser = await User.findById(req.body.userId);
 
     if (currentUser.following.includes(targetUser._id)) {
       currentUser.following.pull(targetUser._id);
@@ -93,6 +92,28 @@ const togglefollowUser = async (req, res) => {
       await currentUser.save();
       res.json({ message: 'User Followed' });
     }
+  } 
+  
+  catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const getBooks = async (req, res) => {
+  try {
+    const current_user = await User.findById(req.user._id).populate('following');
+    
+    const following_list = current_user.following;
+    const booksFromFollowing = [];
+
+    for (const user of following_list) {
+      const userWithBooks = await User.findById(user._id).populate('ownBooks');
+      booksFromFollowing.push(...userWithBooks.ownBooks);
+    }
+
+    const allFollowingBooks = booksFromFollowing.flat();
+
+    res.json({ followingBooks: allFollowingBooks });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -100,8 +121,4 @@ const togglefollowUser = async (req, res) => {
 
 
 
-
-
-
-
-module.exports = {userInfo, postBook, searchUser,togglefollowUser}
+module.exports = {userInfo, postBook, searchUser,togglefollowUser, getBooks}
