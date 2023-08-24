@@ -1,7 +1,12 @@
 const express = require("express");
+const cors = require('cors');
 const app = express();
 const mongooseConnect = require("./configs/mongoDB.connect");
 require("dotenv").config();
+
+app.use(cors());
+
+
 
 app.use(express.json());
 
@@ -13,10 +18,6 @@ app.use("/auth", authRouter);
 const userRoutes = require("./routes/users.routes");
 app.use("/users", userRoutes);
 
-
-
-
-console.log("rr")
 
 
 
