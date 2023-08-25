@@ -49,10 +49,10 @@ const MainComponent = () => {
 
   return (
     <div className="flex bg-gray-100 min-h-screen">
-      <SideBar/>
+      <SideBar />
       <div className="w-3/4 p-8">
         <Container>
-          <Row className="mb-4">     
+          <Row className="mb-4">
             <BookSearchBar onSearch={handleSearch} />
           </Row>
           <Row>
@@ -61,11 +61,17 @@ const MainComponent = () => {
             </Col>
           </Row>
           <Row>
-            {filteredBooks.map((book) => (
-              <Col key={book._id} xs={12} md={4} className="mb-4">
-                <BookCard book={book} />
+            {filteredBooks.length === 0 ? (
+              <Col>
+                <p className="text-center">No books found.</p>
               </Col>
-            ))}
+            ) : (
+              filteredBooks.map((book) => (
+                <Col key={book._id} xs={12} md={4} className="mb-4">
+                  <BookCard book={book} />
+                </Col>
+              ))
+            )}
           </Row>
         </Container>
       </div>
