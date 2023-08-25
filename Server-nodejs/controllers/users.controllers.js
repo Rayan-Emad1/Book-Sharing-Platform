@@ -108,12 +108,23 @@ const getBooks = async (req, res) => {
 
     for (const user of following_list) {
       const userWithBooks = await user.populate('ownBooks');
-      booksFromFollowing.push(...userWithBooks.ownBooks);
+      for (const book of userWithBooks.ownBooks) {
+        const bookData = {
+          user: user._id, // User ID
+          username: user.username, // User's username
+          title: book.title,
+          author: book.author,
+          genre: book.genre,
+          pictureUrl: book.pictureUrl,
+          review: book.review,
+          likes: book.likes,
+          _id: book._id,
+        };
+        booksFromFollowing.push(bookData);
+      }
     }
 
-    const allFollowingBooks = booksFromFollowing.flat();
-
-    res.json({ followingBooks: allFollowingBooks });
+    res.json({ followingBooks: booksFromFollowing });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
