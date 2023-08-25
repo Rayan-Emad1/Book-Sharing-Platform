@@ -1,79 +1,135 @@
-import React, { useState, useEffect } from 'react';
-import SideBar from '../../components/SideBar';
-import AddBookForm from '../../components/AddBookForm';
-import BookCard from '../Cards';
+import React, { useState } from 'react';
 
-function Profile() {
-  const [userInfo, setUserInfo] = useState(null);
+function AddBookForm({ onBookAdded }) {
+  const [formData, setFormData] = useState({
+    title: '',
+    author: '',
+    pictureUrl: '',
+    review: '',
+    genre: '',
+  });
 
-  useEffect(() => {
-    const fetchUserInfo = async () => {
-      try {
-        const response = await fetch('http://localhost:8000/users/get_user_info', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          },
-        });
+  const handleInputChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
 
-        if (!response.ok) {
-          throw new Error('Failed to fetch user info');
-        }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
+    try {
+      const response = await fetch('http://localhost:8000/users/add_book', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
         const data = await response.json();
-        setUserInfo(data);
-      } catch (error) {
-        console.error('Error fetching user info:', error);
+        onBookAdded(data.newBook);
+        setFormData({
+          title: '',
+          author: '',
+          pictureUrl: '',
+          review: '',
+          genre: '',
+        });
       }
-    };
-
-    fetchUserInfo();
-  }, []);
-
-  const handleBookAdded = (newBook) => {
-    setUserInfo((prevUserInfo) => ({
-      ...prevUserInfo,
-      ownBooks: [...prevUserInfo.ownBooks, newBook],
-    }));
+    } catch (error) {
+      console.error('Error adding book:', error);
+    }
   };
 
   return (
-    <div className="flex bg-gray-100 min-h-screen">
-      <SideBar />
-      <div className="w-3/4 p-8">
-        <div className="bg-white shadow-lg rounded-lg p-6">
-          <h1 className="text-3xl font-semibold mb-4">Profile</h1>
-          {userInfo ? (
-            <div>
-              <div className="flex mb-4">
-                <img
-                  src="https://via.placeholder.com/100"
-                  alt="Profile"
-                  className="w-16 h-16 rounded-full object-cover"
-                />
-                <div className="ml-4">
-                  <h2 className="text-xl font-semibold">{userInfo.username}</h2>
-                  <p className="text-gray-600">Likes: {userInfo.ownLikesCount}</p>
-                  <p className="text-gray-600">Own Books: {userInfo.ownBooksCount}</p>
-                  <p className="text-gray-600">Following: {userInfo.followingCount}</p>
-                </div>
-              </div>
-              <AddBookForm onBookAdded={handleBookAdded} />
-              <h2 className="text-xl font-semibold mt-4 mb-2">Your Own Books</h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {userInfo.ownBooks.map((book) => (
-                    <BookCard key={book._id} book={book} />
-                ))}
-              </div>
-              
-            </div>
-          ) : (
-            <p>Loading user info...</p>
-          )}
+    <div className="mt-4 bg-gray-200 p-4 rounded-md shadow-md">
+      <h3 className="text-xl font-semibold mb-2">Add New Book</h3>
+      <form onSubmit={handleSubmit}>
+        <div className="mb-3">
+          <label htmlFor="title" className="block font-semibold mb-1">
+            Title
+          </label>
+          <input
+            type="text"
+            id="title"
+            name="title"
+            value={formData.title}
+            onChange={handleInputChange}
+            className="w-full p-2 border rounded"
+            required
+          />
         </div>
-      </div>
+        <div className="mb-3">
+          <label htmlFor="author" className="block font-semibold mb-1">
+            Author
+          </label>
+          <input
+            type="text"
+            id="author"
+            name="author"
+            value={formData.author}
+            onChange={handleInputChange}
+            className="w-full p-2 border rounded"
+            required
+          />
+        </div>
+        <div className="mb-3">
+          <label htmlFor="pictureUrl" className="block font-semibold mb-1">
+            Picture URL
+          </label>
+          <input
+            type="text"
+            id="pictureUrl"
+            name="pictureUrl"
+            value={formData.pictureUrl}
+            onChange={handleInputChange}
+            className="w-full p-2 border rounded"
+            required
+          />
+        </div>
+        <div className="mb-3">
+          <label htmlFor="review" className="block font-semibold mb-1">
+            Review
+          </label>
+          <textarea
+            id="review"
+            name="review"
+            value={formData.review}
+            onChange={handleInputChange}
+            className="w-full p-2 border rounded"
+            rows="4"
+            required
+          />
+        </div>
+        <div className="mb-3">
+          <label htmlFor="genre" className="block font-semibold mb-1">
+            Genre
+          </label>
+          <input
+            type="text"
+            id="genre"
+            name="genre"
+            value={formData.genre}
+            onChange={handleInputChange}
+            className="w-full p-2 border rounded"
+            required
+          />
+        </div>
+        <div className="mt-4">
+          <button
+            type="submit"
+            className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-800 focus:outline-none"
+          >
+            Submit
+          </button>
+        </div>
+      </form>
     </div>
   );
 }
 
-export default Profile;
+export default AddBookForm;

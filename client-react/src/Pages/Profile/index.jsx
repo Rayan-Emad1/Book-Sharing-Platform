@@ -29,9 +29,10 @@ function Profile() {
     };
 
     fetchUserInfo();
-  }, []);
+  }, []); 
 
   const handleBookAdded = (newBook) => {
+
     setUserInfo((prevUserInfo) => ({
       ...prevUserInfo,
       ownBooks: [...prevUserInfo.ownBooks, newBook],
@@ -48,13 +49,17 @@ function Profile() {
           {userInfo ? (
             <div>
               <div className="flex mb-4">
-                {/* ... Existing user info */}
-              </div>
-              <h2 className="text-xl font-semibold mt-4 mb-2">Your Own Books</h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {userInfo.ownBooks.map((book) => (
-                  <BookCard key={book._id} book={book} />
-                ))}
+                <img
+                  src="https://via.placeholder.com/100"
+                  alt="Profile"
+                  className="w-16 h-16 rounded-full object-cover"
+                />
+                <div className="ml-4">
+                  <h2 className="text-xl font-semibold">{userInfo.username}</h2>
+                  <p className="text-gray-600">Likes: {userInfo.ownLikesCount}</p>
+                  <p className="text-gray-600">Own Books: {userInfo.ownBooksCount}</p>
+                  <p className="text-gray-600">Following: {userInfo.followingCount}</p>
+                </div>
               </div>
               <button
                 className="mt-4 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-800 focus:outline-none"
@@ -63,6 +68,12 @@ function Profile() {
                 {isAddingBook ? 'Cancel' : 'Add New Book'}
               </button>
               {isAddingBook && <AddBookForm onBookAdded={handleBookAdded} />}
+              <h2 className="text-xl font-semibold mt-4 mb-2">Your Own Books</h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {userInfo.ownBooks.map((book) => (
+                  <BookCard key={book._id} book={book} />
+                ))}
+              </div>
             </div>
           ) : (
             <p>Loading user info...</p>

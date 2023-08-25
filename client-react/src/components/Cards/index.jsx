@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, Button } from 'react-bootstrap';
 
 const BookCard = ({ book }) => {
-  const [isLiked, setIsLiked] = useState(false);
+  const [isLiked, setIsLiked] = useState(book.isLikedByUser);
 
   const handleLikeClick = async () => {
     try {
@@ -45,7 +45,7 @@ const BookCard = ({ book }) => {
         >
           {isLiked ? 'Unlike' : 'Like'}
         </Button>
-        <span className="text-gray-600 text-sm">{book.likes.length} Likes</span>
+        <p className="text-xs mt-2">Likes: {book.likes ? book.likes.length : 0}</p>
       </Card.Footer>
     </Card>
   );

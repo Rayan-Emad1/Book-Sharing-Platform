@@ -38,7 +38,10 @@ const userInfo = async (req, res) => {
     const ownLikesCount = userData.ownBooks.reduce((total, book) => total + book.likes.length, 0);
     const ownBooksCount = userData.ownBooks.length;
     const followingCount = userData.following.length;
-    const ownBooks = userData.ownBooks;
+    const ownBooks = userData.ownBooks.map((book) => ({
+      ...book.toObject(),
+      isLikedByUser: book.likes.includes(userId),
+    }));
     const favoriteBooks = userData.favoriteBooks;
 
     const userInfo = {
@@ -54,7 +57,8 @@ const userInfo = async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-}
+};
+
 
 const searchUser = async (req, res) => {
   try {
@@ -109,15 +113,17 @@ const getBooks = async (req, res) => {
     for (const user of following_list) {
       const userWithBooks = await user.populate('ownBooks');
       for (const book of userWithBooks.ownBooks) {
+        const isLikedByUser = book.likes.includes(req.user._id); // Check if user's ID is in the likes array
         const bookData = {
-          user: user._id, // User ID
-          username: user.username, // User's username
+          user: user._id, 
+          username: user.username,
           title: book.title,
           author: book.author,
           genre: book.genre,
           pictureUrl: book.pictureUrl,
           review: book.review,
           likes: book.likes,
+          isLikedByUser: isLikedByUser, 
           _id: book._id,
         };
         booksFromFollowing.push(bookData);
@@ -130,6 +136,7 @@ const getBooks = async (req, res) => {
   }
 };
 
+
 const toggleLikeBook = async (req, res) => {
   try {
     const { owner_id, bookId } = req.body;
@@ -137,21 +144,27 @@ const toggleLikeBook = async (req, res) => {
     const owner = await User.findById(owner_id);
     const bookToLike = owner.ownBooks.find((book) => book._id.toString() === bookId);
 
-
     const isLiked = bookToLike.likes.includes(currentUser._id);
 
     if (isLiked) {
       bookToLike.likes.pull(currentUser._id);
+      currentUser.favoriteBooks.pull(bookToLike._id);
     } else {
       bookToLike.likes.push(currentUser._id);
+      currentUser.favoriteBooks.push(bookToLike);
     }
 
     await owner.save();
+    await currentUser.save();
 
-    res.json({ message: `Book ${isLiked ? 'unliked' : 'liked'} successfully` , owner });
+    res.json({ message: `Book ${isLiked ? 'unliked' : 'liked'} successfully`, owner });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
+
+
+
+
 
 module.exports = {userInfo, postBook, searchUser,togglefollowUser, getBooks,toggleLikeBook}
